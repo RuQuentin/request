@@ -7,7 +7,7 @@ class HttpRequest {
   }
 
   get(url, config) {
-
+    return fetch(url).then(d =>console.log(d))
   }
 
   post(url, config) {
