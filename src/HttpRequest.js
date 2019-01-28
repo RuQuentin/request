@@ -7,41 +7,59 @@ class HttpRequest {
   }
 
   get(url, config) {
-    const {onDownloadProgress, headers: {contentType}} = config;
+    const {headers, responseType} = config;
+    // const {onDownloadProgress, headers} = config;
     
     return new Promise(resolve => {
       const xhr = new XMLHttpRequest();
-      xhr.open("GET", url);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          resolve(xhr.responseText)
-        }
+      const finalUrl = new URL(url, this.baseUrl);
+      xhr.open("GET", finalUrl);
+
+      // for (const name in headers) {
+      //   console.log(name, headers[name])
+      //   xhr.setRequestHeader(name, headers[name]);
+      // }
+
+      xhr.responseType = responseType;
+
+      xhr.onprogress = function(e) {
+        console.log(e.loaded + ' / ' + e.total);
       }
+
+      xhr.onload = function(e) {
+        resolve(xhr.response)
+      }
+
       xhr.send();
     })
   }
 
   post(url, config) {
-    const { data: formdata, headers, responseType, onUploadProgress } = config;
-
-    const data = new FormData(formdata);
+    const { data, headers, transformResponse, onUploadProgress } = config;
 
     return new Promise(resolve => {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", url);
 
-      for (const name in headers) {
-        xhr.setRequestHeader(name, headers[name]);
+      const finalUrl = new URL(url, this.baseUrl);
+      xhr.open("POST", finalUrl);
+
+      const formData = new FormData();
+      
+      for (const name in data) {
+        console.log(name, data[name])
+        formData.append(name, data[name]);
       }
 
-      // xhr.responseType = responseType;
-
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          resolve(xhr)
-        }
+      xhr.upload.onprogress = function(e) {
+        console.log(e.loaded + ' / ' + e.total);
       }
-      xhr.send(data);
+
+      xhr.onload = function() {
+        const result = transformResponse ? transformResponse[0](xhr) : xhr;
+        resolve(result)
+      }
+
+      xhr.send(formData);
     })
   }
 }
