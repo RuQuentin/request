@@ -66,14 +66,33 @@ document.getElementById('downloadForm').onsubmit = function(e) {
 
   request.get(fullPath, config)
     .then(response => {
-      const blob = new Blob([response], { type: "image/jpeg" });
-      const imageUrl = URL.createObjectURL( blob );
-      const img = document.querySelector( ".picture" );
-      img.src = imageUrl;
+
+      if (isPicture(response)) {
+        const url = convertBlobToUrl(response);
+        const element = document.querySelector( ".picture" );
+        displayImage(element, url)
+      } else {
+
+      }
+
+
     })
 }
 
 // ========================
+
+function displayImage(element, url) {
+  element.src = url
+}
+
+function convertBlobToUrl(blob) {
+  const blobObj = new Blob([blob], { type: blob.type });
+  return URL.createObjectURL( blobObj );
+}
+
+function isPicture(object) {
+  return object.type === "image/jpeg" || object.type === "image/gif" || object.type === "image/png" ? true : false
+}
 
 function updateStatusBar(e) {
   const status = e.loaded / e.total * 100;
