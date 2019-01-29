@@ -14,7 +14,21 @@
 // }
 
 
-document.getElementById('uploadForm').onsubmit = function(e) {
+const uploadForm = document.getElementById('uploadForm');
+const buttonChooseFile = document.getElementById('buttonFileToUpload');
+const buttonChooseFileTitle = document.querySelector( ".button__file-name" );
+const defaultFont = 'Arial';
+const prettyFont = `'Major Mono Display', monospace`;
+const buttonChooseFileTitleDefault = buttonChooseFileTitle.textContent;
+
+buttonChooseFile.onchange = function() {
+  clearStatusMessage();
+  const fileNameToUpload = this.value.split('fakepath\\')[1];
+  changeTextContent(buttonChooseFileTitle, fileNameToUpload);
+  setElementFont(buttonChooseFileTitle, defaultFont);
+}
+
+uploadForm.onsubmit = function(e) {
   e.preventDefault();
 
   const uploadedFile = e.target.sampleFile.files[0];
@@ -40,17 +54,33 @@ document.getElementById('uploadForm').onsubmit = function(e) {
   });
   
   request.post('/upload', config)
-    .then(response => console.log(response)) 
+    .then(response => {      
+      changeTextContent(buttonChooseFileTitle, buttonChooseFileTitleDefault);
+      setElementFont(buttonChooseFileTitle, prettyFont);
+      showStatusMessage(uploadedFile.name);
+      
+    }) 
 }
 
 // =====================================================================
 
-document.getElementById('downloadForm').onsubmit = function(e) {
+const downloadForm = document.getElementById('downloadForm');
+
+let fileName = null;
+
+downloadForm.onsubmit = function(e) {
   e.preventDefault();
 
-  const fileName = e.target.sampleFile.value;
-  const fullPath = '/files' + '/' + fileName;
+  clearStatusMessage();
 
+  fileName = e.target.sampleFile.value;
+
+  if (!fileName) {
+    showWarningMessage();
+    return;
+  }
+
+  const fullPath = '/files' + '/' + fileName;
   const responseType = "blob";
   const downloadBar = document.querySelector( ".textarea__choose" );
 
@@ -67,6 +97,12 @@ document.getElementById('downloadForm').onsubmit = function(e) {
   request.get(fullPath, config)
     .then(response => {
       const url = convertBlobToUrl(response);
+      console.log(response)
+
+
+      clearStatusMessage();
+
+      // if (noSuchFile) return showErrorMessage();
 
       if (isPicture(response)) {
         const element = document.querySelector( ".picture" );
@@ -75,11 +111,51 @@ document.getElementById('downloadForm').onsubmit = function(e) {
         downloadFile(url, fileName);
       }
 
-
+      clearTextForm();
+    })
+    .catch(error => {
+      
     })
 }
 
 // ========================
+
+function clearTextForm() {
+  const element = document.querySelector( ".textarea__choose" );
+  element.value = ''
+}
+
+function clearStatusMessage() {
+  const message = '';
+  const element = document.querySelector( ".upload-message" );
+  changeTextContent(element, message)
+}
+
+function showErrorMessage() {
+  const message = `A problem occured. Please, check if the file name you entered is correct`;
+  const element = document.querySelector( ".upload-message" );
+  changeTextContent(element, message)
+}
+
+function showWarningMessage() {
+  const message = `Please, enter the name of the file at first`;
+  const element = document.querySelector( ".upload-message" );
+  changeTextContent(element, message)
+}
+
+function showStatusMessage(fileName) {
+  const message = `File ${fileName} was successfully uploaded to server`;
+  const element = document.querySelector( ".upload-message" );
+  changeTextContent(element, message)  
+}
+
+function setElementFont(element, font) {
+  element.style.fontFamily = font;
+}
+
+function changeTextContent(element, value) {
+  element.textContent = value;
+}
 
 function downloadFile(url, filename) {
   const link = document.createElement('a');

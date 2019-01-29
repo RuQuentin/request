@@ -3,6 +3,7 @@
 }
 
 .container {
+  font-family: Arial;
   display: flex;
   padding: 40px 20px;
   flex-wrap: nowrap;
@@ -34,6 +35,15 @@
   justify-content: space-between;
   border-right: 1px solid white;
   margin-right: 20px;
+}
+
+.upload-message {
+  width: 100%;
+  height: 20px;
+  font-size: 12px;
+  color: goldenrod;
+  text-align: center;
+  padding: 10px 0;
 }
 
 .picture-wrapper {
