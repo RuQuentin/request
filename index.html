@@ -1,24 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <link href="/reset.css" rel="stylesheet" />
+  <link href="/style.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Major+Mono+Display" rel="stylesheet">
+  <title>Upload-Download-Task</title>
 </head>
-<body>
-  <form id="uploadForm"
-    encType="multipart/form-data">
-    <input type="file" name="sampleFile" />
-    <input type="submit" value="Upload!" />
-  </form>
-  <form id="downloadForm">
-    <input type="text" name="sampleFile" />
-    <input type="submit" value="Download!" />
-  </form>
 
-  <img id="photo"/>
+<body>
+  <div class="status-bar__upload"></div>
+
+  <div class="container">
+
+    <div class="section section__main">
+      <div class="forms-wrapper">
+
+        <form class="form form__download" id="uploadForm" encType="multipart/form-data">
+          <label for="" class="button button__choose">
+            <input class="button hidden" type="file" name="sampleFile" />
+            <span class="button__text">Choose a file...</span>
+          </label>
+          <label for="" class="button button__submit button__upload">
+            <input class="button hidden" type="submit" value="Upload" />
+            <span class="button__text">Upload</span>
+          </label>
+        </form>
+
+        <form class="form form__download" autocomplete="off" id="downloadForm">
+          <input class="textarea__choose" type="text" name="sampleFile"
+            placeholder="Type a name of the file..." />
+          <label for="" class="button button__submit button__download">
+            <input class="button hidden" type="submit" value="Download" />
+            <span class="button__text">Download</span>
+          </label>
+        </form>
+      </div>
+
+      <div class="picture-wrapper">
+        <img class="picture" />
+      </div>
+    </div>
+
+    <div class="section section__aside">
+      <h2 class="list-of-files__title">List of uploaded files</h2>
+      <ul class="list-of-files">
+
+      </ul>
+    </div>
+
+
+
+  </div>
+
+
 </body>
-<script src="/HttpRequest.js" ></script>
-<script src="/progress.js" ></script>
+<script src="/HttpRequest.js"></script>
+<script src="/progress.js"></script>
+
 </html>

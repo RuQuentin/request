@@ -7,7 +7,7 @@ class HttpRequest {
   }
 
   get(url, config) {
-    const {headers, responseType} = config;
+    const {headers, responseType, onDownloadProgress} = config;
     // const {onDownloadProgress, headers} = config;
     
     return new Promise(resolve => {
@@ -23,7 +23,7 @@ class HttpRequest {
       xhr.responseType = responseType;
 
       xhr.onprogress = function(e) {
-        console.log(e.loaded + ' / ' + e.total);
+        onDownloadProgress(e);
       }
 
       xhr.onload = function(e) {
@@ -46,12 +46,11 @@ class HttpRequest {
       const formData = new FormData();
       
       for (const name in data) {
-        console.log(name, data[name])
         formData.append(name, data[name]);
       }
 
       xhr.upload.onprogress = function(e) {
-        console.log(e.loaded + ' / ' + e.total);
+        onUploadProgress(e);
       }
 
       xhr.onload = function() {
