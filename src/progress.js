@@ -66,13 +66,13 @@ document.getElementById('downloadForm').onsubmit = function(e) {
 
   request.get(fullPath, config)
     .then(response => {
+      const url = convertBlobToUrl(response);
 
       if (isPicture(response)) {
-        const url = convertBlobToUrl(response);
         const element = document.querySelector( ".picture" );
         displayImage(element, url)
       } else {
-
+        downloadFile(url, fileName);
       }
 
 
@@ -81,13 +81,21 @@ document.getElementById('downloadForm').onsubmit = function(e) {
 
 // ========================
 
+function downloadFile(url, filename) {
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  onload = link.click();
+}
+
 function displayImage(element, url) {
   element.src = url
 }
 
 function convertBlobToUrl(blob) {
   const blobObj = new Blob([blob], { type: blob.type });
-  return URL.createObjectURL( blobObj );
+  const url = window.URL || window.webkitURL;
+  return url.createObjectURL( blobObj );
 }
 
 function isPicture(object) {
