@@ -27,9 +27,12 @@ document.getElementById('uploadForm').onsubmit = function(e) {
     "Content-Type": "multipart/form-data"
   };
 
+  const uploadBar = document.querySelector( ".status-bar__upload" );
+
   const config = {
     headers,
     data,
+    onUploadProgress: updateStatusBar.bind(uploadBar),
   }
 
   const request = new HttpRequest({
@@ -49,9 +52,12 @@ document.getElementById('downloadForm').onsubmit = function(e) {
   const fullPath = '/files' + '/' + fileName;
 
   const responseType = "blob";
-  
+  const downloadBar = document.querySelector( ".textarea__choose" );
+
+
   const config = {
-    responseType
+    responseType,
+    onDownloadProgress: updateStatusBar.bind(downloadBar),
   }
 
   const request = new HttpRequest({
@@ -61,14 +67,22 @@ document.getElementById('downloadForm').onsubmit = function(e) {
   request.get(fullPath, config)
     .then(response => {
       const blob = new Blob([response], { type: "image/jpeg" });
-      console.log(blob);
-
-      const urlCreator = window.URL || window.webkitURL;
-      const imageUrl = urlCreator.createObjectURL( blob );
-      // URL.revokeObjectURL(imageUrl);
-      const img = document.querySelector( "#photo" );
+      const imageUrl = URL.createObjectURL( blob );
+      const img = document.querySelector( ".picture" );
       img.src = imageUrl;
     })
+}
+
+// ========================
+
+function updateStatusBar(e) {
+  const status = e.loaded / e.total * 100;
+  this.style.setProperty('--statusValue', status + '%');
+  if (status === 100) {
+    setTimeout(() => {
+      this.style.setProperty('--statusValue', 0 + '%');
+    }, 500)
+  }
 }
 
 
