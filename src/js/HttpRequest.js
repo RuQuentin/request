@@ -9,7 +9,6 @@ class HttpRequest {
   get(url, config) {
 
     const {headers, responseType = '', onDownloadProgress} = config || {};
-                // const {onDownloadProgress, headers} = config;
     
     return new Promise(resolve => {
       const xhr = new XMLHttpRequest();
