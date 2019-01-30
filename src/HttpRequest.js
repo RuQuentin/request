@@ -7,23 +7,26 @@ class HttpRequest {
   }
 
   get(url, config) {
-    const {headers, responseType, onDownloadProgress} = config;
-    // const {onDownloadProgress, headers} = config;
+
+    const {headers, responseType = '', onDownloadProgress} = config || {};
+                // const {onDownloadProgress, headers} = config;
     
     return new Promise(resolve => {
       const xhr = new XMLHttpRequest();
       const finalUrl = new URL(url, this.baseUrl);
       xhr.open("GET", finalUrl);
 
-      // for (const name in headers) {
-      //   console.log(name, headers[name])
-      //   xhr.setRequestHeader(name, headers[name]);
-      // }
+                // for (const name in headers) {
+                //   console.log(name, headers[name])
+                //   xhr.setRequestHeader(name, headers[name]);
+                // }
 
       xhr.responseType = responseType;
 
       xhr.onprogress = function(e) {
-        onDownloadProgress(e);
+        if (onDownloadProgress) {
+          onDownloadProgress(e);
+        }
       }
 
       xhr.onload = function(e) {
