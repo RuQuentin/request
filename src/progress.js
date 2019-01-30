@@ -14,7 +14,24 @@
 // }
 
 
-document.getElementById('uploadForm').onsubmit = function(e) {
+const uploadForm = document.getElementById('uploadForm');
+const buttonChooseFile = document.getElementById('buttonFileToUpload');
+const buttonChooseFileTitle = document.querySelector( ".button__file-name" );
+const defaultFont = 'Arial';
+const prettyFont = `'Major Mono Display', monospace`;
+const buttonChooseFileTitleDefault = buttonChooseFileTitle.textContent;
+
+let listOfFiles = null;
+updateListOfFiles();
+
+buttonChooseFile.onchange = function() {
+  clearStatusMessage();
+  const fileNameToUpload = this.value.split('fakepath\\')[1];
+  changeTextContent(buttonChooseFileTitle, fileNameToUpload);
+  setElementFont(buttonChooseFileTitle, defaultFont);
+}
+
+uploadForm.onsubmit = function(e) {
   e.preventDefault();
 
   const uploadedFile = e.target.sampleFile.files[0];
@@ -40,20 +57,35 @@ document.getElementById('uploadForm').onsubmit = function(e) {
   });
   
   request.post('/upload', config)
-    .then(response => console.log(response)) 
+    .then(response => {      
+      changeTextContent(buttonChooseFileTitle, buttonChooseFileTitleDefault);
+      setElementFont(buttonChooseFileTitle, prettyFont);
+      showStatusMessage(`File ${uploadedFile.name} was successfully uploaded to server`);
+      listOfFiles = updateListOfFiles();
+    }) 
 }
 
 // =====================================================================
 
-document.getElementById('downloadForm').onsubmit = function(e) {
+const downloadForm = document.getElementById('downloadForm');
+
+let fileName = null;
+
+downloadForm.onsubmit = function(e) {
   e.preventDefault();
 
-  const fileName = e.target.sampleFile.value;
-  const fullPath = '/files' + '/' + fileName;
+  clearStatusMessage();
 
+  fileName = e.target.sampleFile.value;
+
+  if (!fileName) {
+    showStatusMessage(`Please, enter the name of the file at first`);
+    return;
+  }
+
+  const fullPath = '/files' + '/' + fileName;
   const responseType = "blob";
   const downloadBar = document.querySelector( ".textarea__choose" );
-
 
   const config = {
     responseType,
@@ -66,14 +98,85 @@ document.getElementById('downloadForm').onsubmit = function(e) {
 
   request.get(fullPath, config)
     .then(response => {
-      const blob = new Blob([response], { type: "image/jpeg" });
-      const imageUrl = URL.createObjectURL( blob );
-      const img = document.querySelector( ".picture" );
-      img.src = imageUrl;
+
+      const blobObj = convertBlobToObj(response);
+      const url =  convertBlobObjToUrl(blobObj);
+
+      clearStatusMessage();
+
+      // if (noSuchFile) return showErrorMessage();
+      if (!isInList(fileName, listOfFiles)) {
+        showStatusMessage(`There is no file with name ${fileName}`);
+      } else if (isPicture(blobObj)) {
+        const pictureElement = document.querySelector( ".picture" );
+        displayImage(pictureElement, url)
+      } else {
+        downloadFile(url, fileName);
+        showStatusMessage(`File ${fileName} was saved to your local disc`);
+      }
+
+      clearTextForm();
+    })
+    .catch(error => {
+      console.log(error)
     })
 }
 
 // ========================
+
+function isInList(value, array) {
+  return array.some( element => {
+    return element.toLowerCase() === value.toLowerCase();
+  })
+}
+
+function clearTextForm() {
+  const element = document.querySelector( ".textarea__choose" );
+  element.value = ''
+}
+
+function clearStatusMessage() {
+  const message = '';
+  const element = document.querySelector( ".upload-message" );
+  changeTextContent(element, message)
+}
+
+function showStatusMessage(message) {
+  const element = document.querySelector( ".upload-message" );
+  changeTextContent(element, message);
+}
+
+function setElementFont(element, font) {
+  element.style.fontFamily = font;
+}
+
+function changeTextContent(element, value) {
+  element.textContent = value;
+}
+
+function downloadFile(url, filename) {
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  onload = link.click();
+}
+
+function displayImage(element, url) {
+  element.src = url
+}
+
+function convertBlobToObj(blob) {
+  return new Blob([blob], { type: blob.type });
+}
+
+function convertBlobObjToUrl(blobObj) {
+  const url = window.URL || window.webkitURL;
+  return url.createObjectURL( blobObj );
+}
+
+function isPicture(object) {
+  return object.type === "image/jpeg" || object.type === "image/gif" || object.type === "image/png" ? true : false
+}
 
 function updateStatusBar(e) {
   const status = e.loaded / e.total * 100;
@@ -85,6 +188,49 @@ function updateStatusBar(e) {
   }
 }
 
+function getListOfFilesFromServer() {
+  const request = new HttpRequest({
+    baseUrl: 'http://localhost:8000',
+  });
+
+  return request.get('/list')
+}
+
+function transformListToArray(string) {
+  return string.slice(2, string.length - 2).split(`","`);
+}
+
+function deleteListElements() {
+  let elementOfList = null;
+
+  do {
+    elementOfList = document.querySelector(".list-of-files__element");
+
+    if (elementOfList) elementOfList.remove();
+
+  } while (elementOfList)
+}
+
+function updateListOfFilesOnPage(list) {
+  deleteListElements();
+
+  const listOfFiles = document.querySelector(".list-of-files");
+
+  list.forEach( element => {
+    const newElement = document.createElement("li");
+    newElement.classList.add('list-of-files__element');
+    newElement.textContent = element;
+    listOfFiles.append(newElement);
+  })
+}
+
+function updateListOfFiles() {
+  getListOfFilesFromServer()
+    .then( data => {
+      listOfFiles = transformListToArray(data);
+      updateListOfFilesOnPage(listOfFiles);
+    })
+}
 
 //   const config = {
 
