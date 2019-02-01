@@ -38,7 +38,6 @@ uploadForm.onsubmit = function(e) {
 
   const config = {
     data: formData,
-    transformResponse: transformUploadResponse,
     onUploadProgress: updateStatusBar.bind(uploadBar),
   }
 

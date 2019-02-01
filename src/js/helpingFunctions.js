@@ -1,14 +1,9 @@
 /* eslint-disable */
 
-function transformUploadResponse(data) {
-  return data.response
-}
-
 function convertToFormData(dataObj) {
   const formData = new FormData();
 
   for (const name in dataObj) {
-    console.log(name, dataObj[name])
     formData.append(name, dataObj[name]);
   }
 
