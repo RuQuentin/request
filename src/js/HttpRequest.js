@@ -11,8 +11,8 @@ class HttpRequest {
   __request(method, url, config) {
     const {
       transformResponse = data => data.response,
-      headers = null,
-      params = '',
+      headers = {},
+      params = {},
       data = null,
       responseType = 'json',
       onUploadProgress = null,
@@ -27,9 +27,7 @@ class HttpRequest {
     })
 
     let finalUrl = new URL(url, this.baseUrl)
-    finalUrl.search = searchParams.toString();   
-    console.log(finalUrl);
-     
+    finalUrl.search = searchParams.toString();
 
     xhr.open(method, finalUrl);
 
