@@ -2,7 +2,6 @@
 const defaultFont = 'Arial';
 const prettyFont = `'Major Mono Display', monospace`;
 
-let listOfFiles = null;
 updateListOfFiles();
 
 
@@ -27,21 +26,19 @@ buttonChooseFile.onchange = function() {
 uploadForm.onsubmit = function(e) {
   e.preventDefault();
 
-  const uploadedFile = e.target.sampleFile.files[0];
+  let uploadedFile = e.target.sampleFile.files[0];
 
-  const data = {
-    "sampleFile": uploadedFile,
-  };
+  if (!uploadedFile) {
+    changeTextContent(statusMessage, `Please, choose the file at first`);
+    return;
+  }
 
-  const headers = {
-    "Content-Type": "multipart/form-data"
-  };
-
+  const formData = convertToFormData({"sampleFile": uploadedFile})
   const uploadBar = document.querySelector( ".status-bar__upload" );
 
   const config = {
-    headers,
-    data,
+    data: formData,
+    transformResponse: transformUploadResponse,
     onUploadProgress: updateStatusBar.bind(uploadBar),
   }
 
@@ -55,7 +52,7 @@ uploadForm.onsubmit = function(e) {
       setElementFont(buttonChooseFileTitle, prettyFont);
       changeTextContent(statusMessage, `File ${uploadedFile.name} was successfully uploaded to server`);
       updateListOfFiles();
-    }) 
+    })
 }
 
 
@@ -97,16 +94,25 @@ downloadForm.onsubmit = function(e) {
       clearTextContent(statusMessage);
 
       if (!isInList(fileName, listOfFiles)) {
+        // don't show status bar
         changeTextContent(statusMessage, `There is no file with name ${fileName}`);
-      } else if (isPicture(blobObj)) {
-        const pictureElement = document.querySelector( ".picture" );
-        displayImage(pictureElement, url)
-      } else {
-        downloadFile(url, fileName);
-        changeTextContent(statusMessage, `File ${fileName} was saved to your local disc`);
+        return;
       }
 
-      clearTextForm();
+      if (isPicture(blobObj)) {
+        const pictureElement = document.querySelector( ".picture" );
+        displayImage(pictureElement, url);
+        clearTextForm();
+        return;
+      } 
+      
+      if (!isPicture(blobObj)) {
+        downloadFile(url, fileName);
+        changeTextContent(statusMessage, `File ${fileName} was saved to your local disc`);
+        clearTextForm();
+        return;
+      }
+
     })
     .catch(error => {
       console.log(error)
