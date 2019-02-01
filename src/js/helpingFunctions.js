@@ -75,51 +75,51 @@ function updateStatusBar(e) {
 
 function updateListOfFiles() {
   getListOfFilesFromServer()
-    .then( list => {
-      updateListOfFilesOnPage(list);
+    .then( data => {
+      updateListOfFilesOnPage(data);
     })
 }
 
-function getListOfFilesFromServer() {
-  const request = new HttpRequest({
-    baseUrl: 'http://localhost:8000',
-  });
+// function getListOfFilesFromServer() {
+//   const request = new HttpRequest({
+//     baseUrl: 'http://localhost:8000',
+//   });
 
-  config = {
-    transformResponse: [
-      function(data) {
-        return data.response;
-      },
-      function(data) {
-        data.shift();
-        return data
-      }
-    ]
-  }
+//   config = {
+//     transformResponse: [
+//       function(data) {
+//         return data.response;
+//       },
+//       function(data) {
+//         data.shift();
+//         return data
+//       }
+//     ]
+//   }
 
-  return request.get('/list', config)
-}
+//   return request.get('/list', config)
+// }
 
-function updateListOfFilesOnPage(list) {
-  deleteListElements();
+// function updateListOfFilesOnPage(list) {
+//   deleteListElements();
 
-  const listBlock = document.querySelector(".list-of-files");
+//   const listBlock = document.querySelector(".list-of-files");
 
-  list.forEach( element => {
-    const newElement = document.createElement("li");
-    newElement.classList.add('list-of-files__element');
-    newElement.textContent = element;
-    listBlock.append(newElement);
-  })
-}
+//   list.forEach( element => {
+//     const newElement = document.createElement("li");
+//     newElement.classList.add('list-of-files__element');
+//     newElement.textContent = element;
+//     listBlock.append(newElement);
+//   })
+// }
 
-function deleteListElements() {
-  let elementOfList = null;
+// function deleteListElements() {
+//   let elementOfList = null;
 
-  do {
-    elementOfList = document.querySelector(".list-of-files__element");
+//   do {
+//     elementOfList = document.querySelector(".list-of-files__element");
 
-    if (elementOfList) elementOfList.remove();
+//     if (elementOfList) elementOfList.remove();
 
-  } while (elementOfList)
-}
+//   } while (elementOfList)
+// }

@@ -2,12 +2,16 @@
 const defaultFont = 'Arial';
 const prettyFont = `'Major Mono Display', monospace`;
 
-updateListOfFiles();
+const listOfFiles = new ListOfFiles;
+console.log(listOfFiles)
+listOfFiles.update()
+console.log(listOfFiles)
 
 
 // ============= UPLOAD FORM =================
 
 const uploadForm = document.getElementById('uploadForm');
+const uploadBar = document.querySelector( ".status-bar__upload" );
 const buttonChooseFile = document.getElementById('buttonFileToUpload');
 const buttonChooseFileTitle = document.querySelector( ".button__file-name" );
 const statusMessage = document.querySelector( ".status-message" );
@@ -34,7 +38,6 @@ uploadForm.onsubmit = function(e) {
   }
 
   const formData = convertToFormData({"sampleFile": uploadedFile})
-  const uploadBar = document.querySelector( ".status-bar__upload" );
 
   const config = {
     data: formData,
@@ -50,7 +53,7 @@ uploadForm.onsubmit = function(e) {
       changeTextContent(buttonChooseFileTitle, buttonChooseFileTitleDefault);
       setElementFont(buttonChooseFileTitle, prettyFont);
       changeTextContent(statusMessage, `File ${uploadedFile.name} was successfully uploaded to server`);
-      updateListOfFiles();
+      listOfFilesOnServer = updateListOfFiles();
     })
 }
 
@@ -68,6 +71,14 @@ downloadForm.onsubmit = function(e) {
 
   if (!fileName) {
     changeTextContent(statusMessage, `Please, enter the name of the file at first`);
+    return;
+  }
+
+  console.log(fileName)
+  console.log(listOfFilesOnServer)
+
+  if (!isInList(fileName, listOfFilesOnServer)) {
+    changeTextContent(statusMessage, `There is no file with name ${fileName}`);
     return;
   }
 
@@ -91,12 +102,6 @@ downloadForm.onsubmit = function(e) {
       const url =  convertBlobObjToUrl(blobObj);
 
       clearTextContent(statusMessage);
-
-      if (!isInList(fileName, listOfFiles)) {
-        // don't show status bar
-        changeTextContent(statusMessage, `There is no file with name ${fileName}`);
-        return;
-      }
 
       if (isPicture(blobObj)) {
         const pictureElement = document.querySelector( ".picture" );
