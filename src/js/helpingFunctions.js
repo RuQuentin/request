@@ -90,7 +90,19 @@ function getListOfFilesFromServer() {
     baseUrl: 'http://localhost:8000',
   });
 
-  return request.get('/list')
+  config = {
+    transformResponse: [
+      function(data) {
+        return data.response;
+      },
+      function(data) {
+        data.shift();
+        return data
+      }
+    ]
+  }
+
+  return request.get('/list', config)
 }
 
 function updateListOfFilesOnPage(list) {
