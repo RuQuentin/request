@@ -1,5 +1,22 @@
 /* eslint-disable */
 
+function transformUploadResponse(data) {
+  return data.response
+}
+
+function convertToFormData(dataObj) {
+  const formData = new FormData();
+
+  for (const name in dataObj) {
+    console.log(name, dataObj[name])
+    formData.append(name, dataObj[name]);
+  }
+
+  return formData;
+}
+
+// ======================
+
 function clearTextContent(element) {
   const message = '';
   changeTextContent(element, message)
@@ -63,9 +80,8 @@ function updateStatusBar(e) {
 
 function updateListOfFiles() {
   getListOfFilesFromServer()
-    .then( data => {
-      listOfFiles = transformListToArray(data);
-      updateListOfFilesOnPage(listOfFiles);
+    .then( list => {
+      updateListOfFilesOnPage(list);
     })
 }
 
@@ -75,10 +91,6 @@ function getListOfFilesFromServer() {
   });
 
   return request.get('/list')
-}
-
-function transformListToArray(string) {
-  return string.slice(2, string.length - 2).split(`","`);
 }
 
 function updateListOfFilesOnPage(list) {
