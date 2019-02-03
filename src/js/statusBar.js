@@ -1,6 +1,6 @@
 function updateStatusBar(e) {
   const status = e.loaded / e.total * 100;
-  this.elementsList[0].style.setProperty('--statusValue', status + '%');
+  this.elementsList[0].style.setProperty('--statusValue', `${status}%`);
 }
 
 class StatusBar {
@@ -10,8 +10,8 @@ class StatusBar {
         <${this.elementsTagName} class='${this.elementsClassName}'></${this.elementsTagName}>
       `;
 
-      this.parrentElement.insertAdjacentHTML('beforeend', newElement)
-    }
+      this.parrentElement.insertAdjacentHTML('beforeend', newElement);
+    };
 
     this.elementsClassName = className;
     this.elementsTagName = tagName;
