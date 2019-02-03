@@ -20,7 +20,7 @@ uploadForm.onsubmit = function(e) {
 
   statusMessageOnPage.deleteAll();
 
-  let uploadFile = e.target.sampleFile.files[0];
+  const uploadFile = e.target.sampleFile.files[0];
 
   if (!uploadFile) {
     statusMessageOnPage.update(statusMessage.noFileChosen.message);
@@ -30,27 +30,27 @@ uploadForm.onsubmit = function(e) {
   const formData = new FormData();
   formData.append('sampleFile', uploadFile);
 
-  const uploadStatusBar = new StatusBar(
-    'div',
-    `status-bar__upload file__${uploadFile.name}`,
-    'status-bar__upload-wrapper',
-    updateStatusBar
-    );
+  const uploadStatusBar = new StatusBar({
+    tagName: 'div',
+    className: `status-bar__upload file__${uploadFile.name}`,
+    parrentElClassName: 'status-bar__upload-wrapper',
+    statusFunction: updateStatusBar
+  });
 
-  let config = {
+  const config = {
     data: formData,
     onUploadProgress: uploadStatusBar.showProgress.bind(uploadStatusBar)
-  }
+  };
 
   createHttpRequest(httpRequestParams)
     .post('/upload', config)
-      .then(response => {
-        btnChooseFileTitleOnPage.update(btnChooseFileTitle.default.message);
-        statusMessageOnPage.update(statusMessage.fileUpload.getMessage(uploadFile.name));
-        listOfFiles.update().then(data => listOfFilesOnPage.update(data));
-        uploadForm.reset();
-        setTimeout(() => uploadStatusBar.delete(), 500);
-      })
+    .then(() => {
+      btnChooseFileTitleOnPage.update(btnChooseFileTitle.default.message);
+      statusMessageOnPage.update(statusMessage.fileUpload.getMessage(uploadFile.name));
+      listOfFiles.update().then(data => listOfFilesOnPage.update(data));
+      uploadForm.reset();
+      setTimeout(() => uploadStatusBar.delete(), 500);
+    });
 }
 
 
@@ -73,12 +73,12 @@ downloadForm.onsubmit = function(e) {
     return;
   }
 
-  const downloadStatusBar = new StatusBar(
-    'div',
-    `status-bar__download file__${downloadFileName}`,
-    'textarea__choose-wrapper',
-    updateStatusBar
-    );
+  const downloadStatusBar = new StatusBar({
+    tagName: 'div',
+    className: `status-bar__download file__${downloadFileName}`,
+    parrentElClassName: 'textarea__choose-wrapper',
+    statusFunction: updateStatusBar
+  });
 
   const config = {
     responseType: 'blob',
@@ -88,28 +88,24 @@ downloadForm.onsubmit = function(e) {
 
   createHttpRequest(httpRequestParams)
     .get('/files' + '/' + downloadFileName, config)
-      .then(response => {
+    .then(() => {
+      const blob = new BlobDataObject(response);
 
-        const blob = new BlobDataObject(response);
+      statusMessageOnPage.deleteAll();
 
-        statusMessageOnPage.deleteAll();
+      if (blob.isPicture()) {
+        blob.display(pictureElement);
+      }
 
-        if (blob.isPicture()) {
-          blob.display(pictureElement);
-        } 
-        
-        if (!blob.isPicture()) {
-          blob.download(downloadFileName);
-          statusMessageOnPage.update(statusMessage.fileSaved.getMessage(downloadFileName));
-        }
+      if (!blob.isPicture()) {
+        blob.download(downloadFileName);
+        statusMessageOnPage.update(statusMessage.fileSaved.getMessage(downloadFileName));
+      }
 
-        setTimeout(() => {
-          downloadStatusBar.delete();
-          downloadForm.reset()
-        }, 500);
-
-      })
-      .catch(error => {
-        console.log(error)
-      })
-}
+      setTimeout(() => {
+        downloadStatusBar.delete();
+        downloadForm.reset()
+      }, 500);
+    })
+    .catch(error => console.log(error));
+};
