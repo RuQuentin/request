@@ -30,12 +30,12 @@ uploadForm.onsubmit = function(e) {
   const formData = new FormData();
   formData.append('sampleFile', uploadFile);
 
-  const uploadStatusBar = new StatusBar(
-    'div',
-    `status-bar__upload file__${uploadFile.name}`,
-    'status-bar__upload-wrapper',
-    updateStatusBar
-    );
+  const uploadStatusBar = new StatusBar({
+    tagName: 'div',
+    className: `status-bar__upload file__${uploadFile.name}`,
+    parrentElClassName: 'status-bar__upload-wrapper',
+    statusFunction: updateStatusBar
+  });
 
   let config = {
     data: formData,
@@ -73,12 +73,12 @@ downloadForm.onsubmit = function(e) {
     return;
   }
 
-  const downloadStatusBar = new StatusBar(
-    'div',
-    `status-bar__download file__${downloadFileName}`,
-    'textarea__choose-wrapper',
-    updateStatusBar
-    );
+  const downloadStatusBar = new StatusBar({
+    tagName: 'div',
+    className: `status-bar__download file__${downloadFileName}`,
+    parrentElClassName: 'textarea__choose-wrapper',
+    statusFunction: updateStatusBar
+  });
 
   const config = {
     responseType: 'blob',
