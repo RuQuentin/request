@@ -1,4 +1,5 @@
 /* eslint-disable */
+
 class HttpRequest {
   constructor({ baseUrl, headers }) {
     this.baseUrl = baseUrl;
@@ -9,7 +10,7 @@ class HttpRequest {
     const {
       transformResponse = [
         function(data) {
-          return data.response;
+          return data;
         }
       ],
       headers = {},
@@ -38,7 +39,8 @@ class HttpRequest {
     }
 
     xhr.responseType = responseType;
-    xhr.onprogress = onUploadProgress || onDownloadProgress;
+    xhr.upload.onprogress = onUploadProgress;
+    xhr.onprogress = onDownloadProgress;
 
     const result = new Promise( (resolve, reject) => {
       xhr.onload = () => {
