@@ -1,41 +1,10 @@
 /* eslint-disable */
-const defaultFont = 'Arial';
-const prettyFont = `'Major Mono Display', monospace`;
-
-
-const statusMessage = new Notifications;
-
-statusMessage.setNew([
-  {'noFileChosen': `Please, choose the file at first`},
-  {'noFileEntered': `Please, enter the name of the file at first`},
-  {'noFileName': `There is no file with name '{placeForFileName}'`},
-  {'fileUpload': `File '{placeForFileName}' was successfully uploaded to server`},
-  {'fileSaved': `File '{placeForFileName}' was saved to your local disc`}
-]);
-
-
-const btnChooseFileTitle = new Notifications;
-
-btnChooseFileTitle.setNew([
-  {'default': `Choose a file...`},
-  {'fileName': `{placeForFileName}`},
-]);
-  
-
-const listOfFiles = new ListOfFiles;
-
-const statusMessageOnPage = new ElementsOnPage('p', 'status-message', 'status-message-wrapper');
-const listOfFilesOnPage = new ElementsOnPage('li', 'list-of-files__element', 'list-of-files');
-const btnChooseFileTitleOnPage = new ElementsOnPage('span', 'button__file-name', 'button__choose');
 
 btnChooseFileTitleOnPage.update(btnChooseFileTitle.default.message);
 
 listOfFiles.update().then(data => listOfFilesOnPage.update(data));
 
 // ============= UPLOAD FORM =================
-
-const uploadForm = document.querySelector('.form__upload');
-const buttonChooseFile = document.querySelector('.button__choose-file');
 
 buttonChooseFile.onchange = function() {
   statusMessageOnPage.deleteAll();
@@ -59,7 +28,7 @@ uploadForm.onsubmit = function(e) {
   }
 
   const formData = new FormData();
-  formData.append("sampleFile", uploadFile);
+  formData.append('sampleFile', uploadFile);
 
   const uploadStatusBar = new StatusBar(
     'div',
@@ -86,10 +55,6 @@ uploadForm.onsubmit = function(e) {
 
 
 // ============= DOWNLOAD FORM =================
-
-const downloadForm = document.querySelector('.form__download');
-const downloadBar = document.querySelector('.textarea__choose');
-const pictureElement = document.querySelector( ".picture" );
 
 downloadForm.onsubmit = function(e) {
   e.preventDefault();
