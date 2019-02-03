@@ -1,15 +1,12 @@
-/* eslint-disable */
-
 class BlobDataObject {
-  constructor(data) { 
-    const convertBlobToObj = blob => {
-      return new Blob([blob], { type: blob.type });
-    }
+  constructor(data) {
+    const convertBlobToObj = blob => new Blob([blob], { type: blob.type });
 
     const convertBlobObjToUrl = blobObj => {
       const url = window.URL || window.webkitURL;
-      return url.createObjectURL( blobObj );
-    }
+
+      return url.createObjectURL(blobObj);
+    };
 
     this.blobObject = convertBlobToObj(data);
     this.blobType = this.blobObject.type;
@@ -17,7 +14,9 @@ class BlobDataObject {
   }
 
   isPicture() {
-    return this.blobType === "image/jpeg" || this.blobType === "image/gif" || this.blobType === "image/png" ? true : false
+    return this.blobType === 'image/jpeg' ||
+    this.blobType === 'image/gif' ||
+    this.blobType === 'image/png';
   }
 
   display(node) {
