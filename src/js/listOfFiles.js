@@ -1,6 +1,8 @@
+/* eslint-disable */
+
 class ListOfFiles {
   constructor() {
-    this.value = null;
+    this.value = [];
   }
 
   update() {
@@ -26,5 +28,11 @@ class ListOfFiles {
         this.value = data;
         return data;
       });
+  }
+
+  hasItem(fileName) {
+    return this.value.some(item => {
+      return fileName.toLowerCase() === item.toLowerCase();
+    })
   }
 }

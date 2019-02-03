@@ -1,4 +1,5 @@
 /* eslint-disable */
+
 class HttpRequest {
   constructor({ baseUrl, headers }) {
     this.baseUrl = baseUrl;

@@ -12,17 +12,17 @@
 </head>
 
 <body>
-  <div class="status-bar__upload"></div>
+  <div class="status-bar__upload-wrapper"></div>
 
   <div class="container">
 
     <div class="section section__main">
       <div class="forms-wrapper">
 
-        <form class="form form__download" id="uploadForm" encType="multipart/form-data">
+        <form class="form form__upload" id="uploadForm" encType="multipart/form-data">
           <label for="" class="button button__choose">
-            <input class="button hidden" type="file" name="sampleFile" id="buttonFileToUpload" />
-            <span class="button__text button__file-name">Choose a file...</span>
+            <input class="button hidden button__choose-file" type="file" name="sampleFile" id="buttonFileToUpload" />
+            <!-- <span class="button__file-name">Choose a file...</span> -->
           </label>
           <label for="" class="button button__submit button__upload">
             <input class="button hidden" type="submit" value="Upload" />
@@ -31,8 +31,10 @@
         </form>
 
         <form class="form form__download" autocomplete="off" id="downloadForm">
-          <input class="textarea__choose" type="text" name="sampleFile"
-            placeholder="Type a name of the file..." />
+          <div class="textarea__choose-wrapper">
+            <input class="textarea__choose" type="text" name="sampleFile"
+              placeholder="Type a name of the file..." />
+            </div>
           <label for="" class="button button__submit button__download">
             <input class="button hidden" type="submit" value="Download" />
             <span class="button__text">Download</span>
@@ -40,7 +42,7 @@
         </form>
       </div>
 
-      <div class="status-message"></div>
+      <div class="status-message-wrapper"></div>
 
       <div class="picture-wrapper">
         <img class="picture" />
@@ -50,7 +52,6 @@
     <div class="section section__aside">
       <h2 class="list-of-files__title">List of uploaded files</h2>
       <ul class="list-of-files">
-
       </ul>
     </div>
 
@@ -60,9 +61,14 @@
 
 
 </body>
+
 <script src="/js/HttpRequest.js"></script>
-<script src="/js/classListOfFiles.js"></script>
+<script src="/js/notifications.js"></script>
+<script src="/js/blobDataObject.js"></script>
+<script src="/js/statusBar.js"></script>
+<script src="/js/listOfFiles.js"></script>
 <script src="/js/helpingFunctions.js"></script>
+<script src="/js/createHttpRequest.js"></script>
 <script src="/js/renderPage.js"></script>
 <script src="/js/progress.js"></script>
 

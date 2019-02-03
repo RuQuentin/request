@@ -2,191 +2,149 @@
 const defaultFont = 'Arial';
 const prettyFont = `'Major Mono Display', monospace`;
 
-const listOfFiles = new ListOfFiles;
-console.log(listOfFiles)
-listOfFiles.update()
-console.log(listOfFiles)
 
+const statusMessage = new Notifications;
+
+statusMessage.setNew([
+  {'noFileChosen': `Please, choose the file at first`},
+  {'noFileEntered': `Please, enter the name of the file at first`},
+  {'noFileName': `There is no file with name '{placeForFileName}'`},
+  {'fileUpload': `File '{placeForFileName}' was successfully uploaded to server`},
+  {'fileSaved': `File '{placeForFileName}' was saved to your local disc`}
+]);
+
+
+const btnChooseFileTitle = new Notifications;
+
+btnChooseFileTitle.setNew([
+  {'default': `Choose a file...`},
+  {'fileName': `{placeForFileName}`},
+]);
+  
+
+const listOfFiles = new ListOfFiles;
+
+const statusMessageOnPage = new ElementsOnPage('p', 'status-message', 'status-message-wrapper');
+const listOfFilesOnPage = new ElementsOnPage('li', 'list-of-files__element', 'list-of-files');
+const btnChooseFileTitleOnPage = new ElementsOnPage('span', 'button__file-name', 'button__choose');
+
+btnChooseFileTitleOnPage.update(btnChooseFileTitle.default.message);
+
+listOfFiles.update().then(data => listOfFilesOnPage.update(data));
 
 // ============= UPLOAD FORM =================
 
-const uploadForm = document.getElementById('uploadForm');
-const uploadBar = document.querySelector( ".status-bar__upload" );
-const buttonChooseFile = document.getElementById('buttonFileToUpload');
-const buttonChooseFileTitle = document.querySelector( ".button__file-name" );
-const statusMessage = document.querySelector( ".status-message" );
-const buttonChooseFileTitleDefault = buttonChooseFileTitle.textContent;
+const uploadForm = document.querySelector('.form__upload');
+const buttonChooseFile = document.querySelector('.button__choose-file');
 
 buttonChooseFile.onchange = function() {
-  clearTextContent(statusMessage);
+  statusMessageOnPage.deleteAll();
   const fileNameToUpload = this.value.split('fakepath\\')[1];
 
   if (fileNameToUpload) {
-    changeTextContent(buttonChooseFileTitle, fileNameToUpload);
-    setElementFont(buttonChooseFileTitle, defaultFont);
+    btnChooseFileTitleOnPage.update(btnChooseFileTitle.fileName.getMessage(fileNameToUpload));
   }
 }
 
 uploadForm.onsubmit = function(e) {
   e.preventDefault();
 
-  let uploadedFile = e.target.sampleFile.files[0];
+  statusMessageOnPage.deleteAll();
 
-  if (!uploadedFile) {
-    changeTextContent(statusMessage, `Please, choose the file at first`);
+  let uploadFile = e.target.sampleFile.files[0];
+
+  if (!uploadFile) {
+    statusMessageOnPage.update(statusMessage.noFileChosen.message);
     return;
   }
 
-  const formData = convertToFormData({"sampleFile": uploadedFile})
+  const formData = new FormData();
+  formData.append("sampleFile", uploadFile);
 
-  const config = {
+  const uploadStatusBar = new StatusBar(
+    'div',
+    `status-bar__upload file__${uploadFile.name}`,
+    'status-bar__upload-wrapper',
+    updateStatusBar
+    );
+
+  let config = {
     data: formData,
-    onUploadProgress: updateStatusBar.bind(uploadBar),
+    onUploadProgress: uploadStatusBar.showProgress.bind(uploadStatusBar)
   }
 
-  const request = new HttpRequest({
-    baseUrl: 'http://localhost:8000',
-  });
-  
-  request.post('/upload', config)
-    .then(response => {      
-      changeTextContent(buttonChooseFileTitle, buttonChooseFileTitleDefault);
-      setElementFont(buttonChooseFileTitle, prettyFont);
-      changeTextContent(statusMessage, `File ${uploadedFile.name} was successfully uploaded to server`);
-      listOfFilesOnServer = updateListOfFiles();
-    })
+  createHttpRequest(httpRequestParams)
+    .post('/upload', config)
+      .then(response => {
+        btnChooseFileTitleOnPage.update(btnChooseFileTitle.default.message);
+        statusMessageOnPage.update(statusMessage.fileUpload.getMessage(uploadFile.name));
+        listOfFiles.update().then(data => listOfFilesOnPage.update(data));
+        uploadForm.reset();
+        setTimeout(() => uploadStatusBar.delete(), 500);
+      })
 }
 
 
 // ============= DOWNLOAD FORM =================
 
-const downloadForm = document.getElementById('downloadForm');
+const downloadForm = document.querySelector('.form__download');
+const downloadBar = document.querySelector('.textarea__choose');
+const pictureElement = document.querySelector( ".picture" );
 
 downloadForm.onsubmit = function(e) {
   e.preventDefault();
 
-  clearTextContent(statusMessage);
+  statusMessageOnPage.deleteAll();
 
-  const fileName = e.target.sampleFile.value;
+  const downloadFileName = e.target.sampleFile.value;
 
-  if (!fileName) {
-    changeTextContent(statusMessage, `Please, enter the name of the file at first`);
+  if (!downloadFileName) {
+    statusMessageOnPage.update(statusMessage.noFileChosen.message);
     return;
   }
 
-  console.log(fileName)
-  console.log(listOfFilesOnServer)
-
-  if (!isInList(fileName, listOfFilesOnServer)) {
-    changeTextContent(statusMessage, `There is no file with name ${fileName}`);
+  if (!listOfFiles.hasItem(downloadFileName)) {
+    statusMessageOnPage.update(statusMessage.noFileName.getMessage(downloadFileName));
     return;
   }
 
-  const fullPath = '/files' + '/' + fileName;
-  const responseType = "blob";
-  const downloadBar = document.querySelector( ".textarea__choose" );
+  const downloadStatusBar = new StatusBar(
+    'div',
+    `status-bar__download file__${downloadFileName}`,
+    'textarea__choose-wrapper',
+    updateStatusBar
+    );
 
   const config = {
-    responseType,
-    onDownloadProgress: updateStatusBar.bind(downloadBar),
+    responseType: 'blob',
+    transformResponse: [data => data.response],
+    onDownloadProgress: downloadStatusBar.showProgress.bind(downloadStatusBar)
   }
 
-  const request = new HttpRequest({
-    baseUrl: 'http://localhost:8000',
-  });
+  createHttpRequest(httpRequestParams)
+    .get('/files' + '/' + downloadFileName, config)
+      .then(response => {
 
-  request.get(fullPath, config)
-    .then(response => {
+        const blob = new BlobDataObject(response);
 
-      const blobObj = convertBlobToObj(response);
-      const url =  convertBlobObjToUrl(blobObj);
+        statusMessageOnPage.deleteAll();
 
-      clearTextContent(statusMessage);
+        if (blob.isPicture()) {
+          blob.display(pictureElement);
+        } 
+        
+        if (!blob.isPicture()) {
+          blob.download(downloadFileName);
+          statusMessageOnPage.update(statusMessage.fileSaved.getMessage(downloadFileName));
+        }
 
-      if (isPicture(blobObj)) {
-        const pictureElement = document.querySelector( ".picture" );
-        displayImage(pictureElement, url);
-        clearTextForm();
-        return;
-      } 
-      
-      if (!isPicture(blobObj)) {
-        downloadFile(url, fileName);
-        changeTextContent(statusMessage, `File ${fileName} was saved to your local disc`);
-        clearTextForm();
-        return;
-      }
+        setTimeout(() => {
+          downloadStatusBar.delete();
+          downloadForm.reset()
+        }, 500);
 
-    })
-    .catch(error => {
-      console.log(error)
-    })
+      })
+      .catch(error => {
+        console.log(error)
+      })
 }
-
-// ========================
-
-
-//   const config = {
-
-//     // `transformResponse` allows changes to the response data to be made before
-//     // it is passed to then/catch
-//     transformResponse: [function (data) {
-//       // Do whatever you want to transform the data
-   
-//       return data.responseText;
-//     }],
-   
-//     // `headers` are custom headers to be sent
-//     headers: {'X-Requested-With': 'XMLHttpRequest'},
-   
-//     // `params` are the URL parameters to be sent with the request
-//     // Must be a plain object or a URLSearchParams object
-//     params: {
-//       ID: 12345
-//     },
-  
-//     // `data` is the data to be sent as the request body
-//     // Only applicable for request methods 'PUT', 'POST', and 'PATCH'
-//     // When no `transformRequest` is set, must be of one of the following types:
-//     // - string, plain object, ArrayBuffer, ArrayBufferView, URLSearchParams
-//     // - Browser only: FormData, File, Blob
-//     // - Node only: Stream, Buffer
-  
-//     data: {
-//       firstName: 'Fred'
-//     },
-  
-//     // `responseType` indicates the type of data that the server will respond with
-//     // options are 'arraybuffer', 'blob', 'document', 'json', 'text', 'stream'
-//     responseType: 'json', // default
-  
-//     // `onUploadProgress` allows handling of progress events for uploads
-//     onUploadProgress: function (progressEvent) {
-//       // Do whatever you want with the native progress event
-//       console.log('progress')
-//     },
-   
-//     // `onDownloadProgress` allows handling of progress events for downloads
-//     onDownloadProgress: function (progressEvent) {
-//       // Do whatever you want with the native progress event
-//       console.log('downloading')
-//     },
-//   }
-
-
-// reuest.get('/form', config)
-//   .then(response => {
-//     console.log(response);
-//   })
-//   .catch(e => {
-//     console.log(e)
-//   });
-
-// reuest.post('/upload', config)
-//   .then(response => {
-//     console.log(response);
-//   })
-//   .catch(e => {
-//     console.log(e)
-//   });
-
