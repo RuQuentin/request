@@ -31,8 +31,6 @@ class ListOfFiles {
   }
 
   hasItem(fileName) {
-    return this.value.some(item => {
-      return fileName.toLowerCase() === item.toLowerCase();
-    })
+    return this.value.some(item => fileName.toLowerCase() === item.toLowerCase());
   }
 }
