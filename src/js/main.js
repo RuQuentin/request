@@ -20,7 +20,7 @@ uploadForm.onsubmit = function(e) {
 
   statusMessageOnPage.deleteAll();
 
-  let uploadFile = e.target.sampleFile.files[0];
+  const uploadFile = e.target.sampleFile.files[0];
 
   if (!uploadFile) {
     statusMessageOnPage.update(statusMessage.noFileChosen.message);
@@ -37,20 +37,20 @@ uploadForm.onsubmit = function(e) {
     statusFunction: updateStatusBar
   });
 
-  let config = {
+  const config = {
     data: formData,
     onUploadProgress: uploadStatusBar.showProgress.bind(uploadStatusBar)
-  }
+  };
 
   createHttpRequest(httpRequestParams)
     .post('/upload', config)
-      .then(response => {
-        btnChooseFileTitleOnPage.update(btnChooseFileTitle.default.message);
-        statusMessageOnPage.update(statusMessage.fileUpload.getMessage(uploadFile.name));
-        listOfFiles.update().then(data => listOfFilesOnPage.update(data));
-        uploadForm.reset();
-        setTimeout(() => uploadStatusBar.delete(), 500);
-      })
+    .then(() => {
+      btnChooseFileTitleOnPage.update(btnChooseFileTitle.default.message);
+      statusMessageOnPage.update(statusMessage.fileUpload.getMessage(uploadFile.name));
+      listOfFiles.update().then(data => listOfFilesOnPage.update(data));
+      uploadForm.reset();
+      setTimeout(() => uploadStatusBar.delete(), 500);
+    });
 }
 
 
@@ -88,28 +88,24 @@ downloadForm.onsubmit = function(e) {
 
   createHttpRequest(httpRequestParams)
     .get('/files' + '/' + downloadFileName, config)
-      .then(response => {
+    .then(() => {
+      const blob = new BlobDataObject(response);
 
-        const blob = new BlobDataObject(response);
+      statusMessageOnPage.deleteAll();
 
-        statusMessageOnPage.deleteAll();
+      if (blob.isPicture()) {
+        blob.display(pictureElement);
+      }
 
-        if (blob.isPicture()) {
-          blob.display(pictureElement);
-        } 
-        
-        if (!blob.isPicture()) {
-          blob.download(downloadFileName);
-          statusMessageOnPage.update(statusMessage.fileSaved.getMessage(downloadFileName));
-        }
+      if (!blob.isPicture()) {
+        blob.download(downloadFileName);
+        statusMessageOnPage.update(statusMessage.fileSaved.getMessage(downloadFileName));
+      }
 
-        setTimeout(() => {
-          downloadStatusBar.delete();
-          downloadForm.reset()
-        }, 500);
-
-      })
-      .catch(error => {
-        console.log(error)
-      })
-}
+      setTimeout(() => {
+        downloadStatusBar.delete();
+        downloadForm.reset()
+      }, 500);
+    })
+    .catch(error => console.log(error));
+};
