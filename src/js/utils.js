@@ -6,9 +6,7 @@ const downloadForm = document.querySelector('.form__download');
 const downloadBar = document.querySelector('.textarea__choose');
 const pictureElement = document.querySelector('.picture');
 
-const statusMessage = new Notifications();
-
-statusMessage.setNew([
+const statusMessage = new Notifications([
   { 'noFileChosen': 'Please, choose the file at first' },
   { 'noFileEntered': 'Please, enter the name of the file at first' },
   { 'noFileName': 'There is no file with name `{placeForFileName}`'},
@@ -16,10 +14,7 @@ statusMessage.setNew([
   { 'fileSaved': 'File `{placeForFileName}` was saved to your local disc' }
 ]);
 
-
-const btnChooseFileTitle = new Notifications();
-
-btnChooseFileTitle.setNew([
+const btnChooseFileTitle = new Notifications([
   { 'default': 'Choose a file...' },
   { 'fileName': '{placeForFileName}' }
 ]);
