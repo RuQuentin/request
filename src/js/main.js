@@ -88,7 +88,7 @@ downloadForm.onsubmit = function(e) {
 
   createHttpRequest(httpRequestParams)
     .get('/files' + '/' + downloadFileName, config)
-    .then(() => {
+    .then((response) => {
       const blob = new BlobDataObject(response);
 
       statusMessageOnPage.deleteAll();
