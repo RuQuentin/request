@@ -42,11 +42,11 @@ class HttpRequest {
 
     const result = new Promise( (resolve, reject) => {
       xhr.onload = () => {
-        if (Number.floor(xhr.status / 100) === 2) {
+        if (Math.floor(xhr.status / 100) === 2) {
           resolve(xhr);
         }
 
-        if (Number.floor(xhr.status / 100) !== 2) {
+        if (Math.floor(xhr.status / 100) !== 2) {
           reject(xhr);
         }
       };

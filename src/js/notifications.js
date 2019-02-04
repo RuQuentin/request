@@ -11,12 +11,11 @@ class Notification {
 class Notifications {
   // accept objects in the following format {nameOfNotification: contentOfNotification} or Array of such Objects
   constructor(notificationsList) {
-    const isCorrectData = data => {
+    const isCorrectData = data =>
       data !== undefined &&
       typeof data !== 'number' &&
       typeof data !== 'string' &&
       typeof data !== 'function';
-    };
 
     if (isCorrectData(notificationsList) && isCorrectData(notificationsList[0])) {
       notificationsList.forEach(object => {
@@ -34,6 +33,6 @@ class Notifications {
       return;
     }
 
-    throw new Error('Wrong data format for .setNew(data)');
+    throw new Error('Wrong data format for Notifications(data)');
   }
 }
