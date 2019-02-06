@@ -1,4 +1,5 @@
-/* eslint-disable */
+/* global Notifications, ListOfFiles, ElementsOnPage, StatusBar, request,
+BlobDataObject, updateStatusBar */
 
 const uploadForm = document.querySelector('.form__upload');
 const buttonChooseFile = document.querySelector('.button__choose-file');
@@ -9,7 +10,7 @@ const pictureElement = document.querySelector('.picture');
 const statusMessage = new Notifications([
   { 'noFileChosen': 'Please, choose the file at first' },
   { 'noFileEntered': 'Please, enter the name of the file at first' },
-  { 'noFileName': 'There is no file with name `{placeForFileName}`'},
+  { 'noFileName': 'There is no file with name `{placeForFileName}`' },
   { 'fileUpload': 'File `{placeForFileName}` was successfully uploaded to server' },
   { 'fileSaved': 'File `{placeForFileName}` was saved to your local disc' }
 ]);
@@ -29,6 +30,7 @@ const btnChooseFileTitleOnPage = new ElementsOnPage('span', 'button__file-name',
 listOfFiles.update()
   .then(data => listOfFilesOnPage.update(data));
 
+
 // ============= UPLOAD FORM =================
 
 buttonChooseFile.onchange = function() {
@@ -39,7 +41,7 @@ buttonChooseFile.onchange = function() {
     const btnText = btnChooseFileTitle.fileName.getMessage(fileNameToUpload);
     btnChooseFileTitleOnPage.update(btnText);
   }
-}
+};
 
 uploadForm.onsubmit = function(e) {
   e.preventDefault();
@@ -49,7 +51,7 @@ uploadForm.onsubmit = function(e) {
   const uploadFile = e.target.sampleFile.files[0];
 
   if (!uploadFile) {
-    const {message: msgText} = statusMessage.noFileChosen;
+    const { message: msgText } = statusMessage.noFileChosen;
     statusMessageOnPage.update(msgText);
     return;
   }
@@ -69,13 +71,13 @@ uploadForm.onsubmit = function(e) {
     onUploadProgress: uploadStatusBar.showProgress.bind(uploadStatusBar)
   };
 
-  createHttpRequest(httpRequestParams)
+  request
     .post('/upload', config)
     .then(() => {
-      const {message: btnText} = btnChooseFileTitle.default;
+      const { message: btnText } = btnChooseFileTitle.default;
       btnChooseFileTitleOnPage.update(btnText);
 
-      const msgText = statusMessage.fileUpload.getMessage(uploadFile.name)
+      const msgText = statusMessage.fileUpload.getMessage(uploadFile.name);
       statusMessageOnPage.update(msgText);
 
       listOfFiles.update()
@@ -84,7 +86,7 @@ uploadForm.onsubmit = function(e) {
       uploadForm.reset();
       setTimeout(() => uploadStatusBar.delete(), 500);
     });
-}
+};
 
 
 // ============= DOWNLOAD FORM =================
@@ -97,7 +99,7 @@ downloadForm.onsubmit = function(e) {
   const downloadFileName = e.target.sampleFile.value;
 
   if (!downloadFileName) {
-    const {message: msgText} = statusMessage.noFileChosen;
+    const { message: msgText } = statusMessage.noFileChosen;
     statusMessageOnPage.update(msgText);
     return;
   }
@@ -119,11 +121,11 @@ downloadForm.onsubmit = function(e) {
     responseType: 'blob',
     transformResponse: [data => data.response],
     onDownloadProgress: downloadStatusBar.showProgress.bind(downloadStatusBar)
-  }
+  };
 
-  createHttpRequest(httpRequestParams)
-    .get('/files' + '/' + downloadFileName, config)
-    .then((response) => {
+  request
+    .get(`/files/${downloadFileName}`, config)
+    .then(response => {
       const blob = new BlobDataObject(response);
 
       statusMessageOnPage.deleteAll();
@@ -134,14 +136,14 @@ downloadForm.onsubmit = function(e) {
 
       if (!blob.isPicture()) {
         blob.download(downloadFileName);
-        const msgText = statusMessage.fileSaved.getMessage(downloadFileName)
+        const msgText = statusMessage.fileSaved.getMessage(downloadFileName);
         statusMessageOnPage.update(msgText);
       }
 
       setTimeout(() => {
         downloadStatusBar.delete();
-        downloadForm.reset()
+        downloadForm.reset();
       }, 500);
     })
-    .catch(error => console.log(error));
+    .catch(error => window.console.log(error));
 };
