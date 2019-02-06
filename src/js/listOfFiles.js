@@ -1,36 +1,40 @@
-/* eslint-disable */
+/* global HttpRequest */
 
-class ListOfFiles {
-  constructor() {
-    this.value = [];
-  }
+(() => {
+  class ListOfFiles {
+    constructor() {
+      this.value = [];
+    }
 
-  update() {
-    const request = new HttpRequest({
-      baseUrl: 'http://localhost:8000',
-    });
-
-    const config = {
-      transformResponse: [
-        function(data) {
-          return data.response;
-        },
-        function(data) {
-          data.shift();
-          return data;
-        }
-      ]
-    };
-
-    return request
-      .get('/list', config)
-      .then(data => {
-        this.value = data;
-        return data;
+    update() {
+      const request = new HttpRequest({
+        baseUrl: 'http://localhost:8000'
       });
+
+      const config = {
+        transformResponse: [
+          function(data) {
+            return data.response;
+          },
+          function(data) {
+            data.shift();
+            return data;
+          }
+        ]
+      };
+
+      return request
+        .get('/list', config)
+        .then(data => {
+          this.value = data;
+          return data;
+        });
+    }
+
+    hasItem(fileName) {
+      return this.value.some(item => fileName.toLowerCase() === item.toLowerCase());
+    }
   }
 
-  hasItem(fileName) {
-    return this.value.some(item => fileName.toLowerCase() === item.toLowerCase());
-  }
-}
+  window.ListOfFiles = ListOfFiles;
+})();

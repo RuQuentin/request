@@ -1,9 +1,11 @@
-/* eslint-disable */
+/* global HttpRequest */
 
-const httpRequestParams = {
-  baseUrl: 'http://localhost:8000'
-};
+(() => {
+  const httpRequestParams = {
+    baseUrl: 'http://localhost:8000'
+  };
 
-function createHttpRequest(params) {
-  return new HttpRequest(params);
-}
+  const request = new HttpRequest(httpRequestParams);
+
+  window.request = request;
+})();
